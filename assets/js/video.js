@@ -28,13 +28,28 @@ let Video = {
       this.renderAnnotation(msgContainer, resp)
     })
     vidChannel.join()
-    .receive("ok", resp => console.log("joined the video channel", resp))
-    .receive("error", reason => console.log("join failed", reason))
+      .receive("ok", resp => console.log("joined the video channel", resp))
+      .receive("error", reason => console.log("join failed", reason))
+
+  },
+
+  esc(str) {
+    let div = document.createElement("div")
+    div.appendChild(document.createTextNode(str))
+    return div.innerHTML
 
   },
 
   renderAnnotation(msgContainer, { user, body, at }) {
-     // TODO append annotation to msgContainer
-     }
+    let template = document.createElement("div")
+
+    template.innerHTML = `
+ <a href="#" data-seek="${this.esc(at)}">
+ <b>${this.esc(user.username)}</b>: ${this.esc(body)}
+ </a>
+ `
+    msgContainer.appendChild(template)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+  }
 }
 export default Video
