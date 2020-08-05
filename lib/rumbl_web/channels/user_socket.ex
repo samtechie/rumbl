@@ -18,9 +18,23 @@ defmodule RumblWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(_params, socket, _connect_info) do
-    {:ok, socket}
+  @max_age 2 * 7 * 24 * 60 * 60
+  def connect(%{"token" => token}, socket, _connect_info) do
+    case Phoenix.Token.verify(
+           socket,
+           "user socket",
+           token,
+           max_age: @max_age
+         ) do
+      {:ok, user_id} ->
+        {:ok, assign(socket, :user_id, user_id)}
+
+      {:error, _reason} ->
+        :error
+    end
   end
+
+  def connect(_params, _socket, _connect_info), do: :error
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #
@@ -33,5 +47,5 @@ defmodule RumblWeb.UserSocket do
   #
   # Returning `nil` makes this socket anonymous.
   @impl true
-  def id(_socket), do: nil
+  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end
